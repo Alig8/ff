@@ -5,7 +5,7 @@
       XCODE_PROJECT: "Unity-iPhone.xcodeproj"
       XCODE_SCHEME: "Unity-iPhone"
   scripts:
-    - name: Activate Unity license
+    - name: Game
       script: #...
     - name: Generate the Xcode project from Unity
       script: | 
@@ -24,5 +24,5 @@
       script: | 
         xcode-project build-ipa --project "$UNITY_IOS_DIR/$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/ipa/game.ipa
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
