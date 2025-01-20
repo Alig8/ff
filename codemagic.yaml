@@ -1,40 +1,28 @@
-workflows:
-  unity-ios-build:
-    name: Unity iOS Build
-    environment:
-      vars:
-        UNITY_SERIAL: $UNITY_SERIAL # مفتاح الترخيص الخاص بـ Unity (للمشاريع المدفوعة)
-      unity:
-        version: "2021.3.18f1" # ضع إصدار Unity الذي تستخدمه
-      xcode:
-        version: "15.0" # إصدار Xcode المثبت في بيئة Codemagic
-    scripts:
-      - name: Set up Unity
-        script: |
-          echo "Setting up Unity environment"
-      - name: Build Unity Project for iOS
-        script: |
-          unity-editor \
-            -batchmode \
-            -nographics \
-            -quit \
-            -projectPath ./ \
-            -buildTarget iOS \
-            -customBuildTarget ios \
-            -outputPath ./build/ios
-      - name: Export IPA using Xcode
-        script: |
-          cd ./build/ios
-          xcodebuild \
-            -workspace Unity-iPhone.xcworkspace \
-            -scheme Unity-iPhone \
-            -sdk iphoneos \
-            -configuration Release \
-            archive -archivePath ./build/UnityApp.xcarchive
-          xcodebuild \
-            -exportArchive \
-            -archivePath ./build/UnityApp.xcarchive \
-            -exportOptionsPlist ./ExportOptions.plist \
-            -exportPath ./build/UnityApp
+  environment:
+    #...
+    vars:
+      UNITY_IOS_DIR: ios
+      XCODE_PROJECT: "Unity-iPhone.xcodeproj"
+      XCODE_SCHEME: "Unity-iPhone"
+  scripts:
+    - name: Activate Unity license
+      script: 
+    - name: Generate the Xcode project from Unity
+      script: | 
+        $UNITY_HOME/Contents/MacOS/Unity -batchmode \
+          -quit \
+          -logFile \
+          -projectPath . \
+          -executeMethod BuildScript.BuildIos \
+          -nographics
+    - name: Set up code signing settings on Xcode project
+      script: | 
+        xcode-project use-profiles
+    - name: Set the build number
+      script: #...
+    - name: Build the project
+      script: | 
+        xcode-project build-ipa --project "$UNITY_IOS_DIR/$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
     artifacts:
-      - build/UnityApp/game.ipa # تحديد ملف IPA الناتج
+      - build/ios/ipa/*game.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
