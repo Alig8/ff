@@ -1,1 +1,28 @@
-
+  environment:
+    #...
+    vars:
+      UNITY_IOS_DIR: ios
+      XCODE_PROJECT: "Unity-iPhone.xcodeproj"
+      XCODE_SCHEME: "Unity-iPhone"
+  scripts:
+    - name: Activate Unity license
+      script: #...
+    - name: Generate the Xcode project from Unity
+      script: | 
+        $UNITY_HOME/Contents/MacOS/Unity -batchmode \
+          -quit \
+          -logFile \
+          -projectPath . \
+          -executeMethod BuildScript.BuildIos \
+          -nographics
+    - name: Set up code signing settings on Xcode project
+      script: | 
+        xcode-project use-profiles
+    - name: Set the build number
+      script: #...
+    - name: Build the project
+      script: | 
+        xcode-project build-ipa --project "$UNITY_IOS_DIR/$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
